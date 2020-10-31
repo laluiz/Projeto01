@@ -7,17 +7,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.text.BreakIterator;
 
 import br.senai.sc.projeto01.R;
+import br.senai.sc.projeto01.database.ProdutoDAO;
 import br.senai.sc.projeto01.modelo.Produto;
 
 public class CadastroProdutoActivity extends AppCompatActivity {
-    private final int RESULT_CODE_NOVO_PRODUTO = 10;
-    private final int RESULT_CODE_PRODUTO_EDITADO = 11;
 
-    private boolean edicao = false;
     private int id = 0;
 
     @Override
@@ -37,7 +36,6 @@ public class CadastroProdutoActivity extends AppCompatActivity {
             EditText editTextValor = findViewById(R.id.editText_valor);
             editTextNome.setText(produto.getNome());
             editTextValor.setText(String.valueOf(produto.getValor()));
-            edicao = true;
             id = produto.getId();
 
         }
@@ -53,17 +51,14 @@ public class CadastroProdutoActivity extends AppCompatActivity {
         String nome = ediTextNome.getText().toString();
         Float valor = Float.parseFloat(editTextValor.getText().toString());
 
-        Intent intent = new Intent();
         Produto produto = new Produto(id, nome, valor);
-        if (edicao) {
-            intent.putExtra("produtoEditado", produto);
-            setResult(RESULT_CODE_PRODUTO_EDITADO, intent);
+        ProdutoDAO produtoDao = new ProdutoDAO(getBaseContext());
+        boolean salvou = produtoDao.salvar(produto);
+        if (salvou) {
+            finish();
         } else {
-            intent.putExtra("novoProduto", produto);
-            setResult(RESULT_CODE_NOVO_PRODUTO, intent);
+            Toast.makeText(CadastroProdutoActivity.this, "Erro ao salvar", Toast.LENGTH_LONG).show();
         }
 
-        finish();
     }
-
 }
